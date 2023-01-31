@@ -12,7 +12,7 @@ use crate::runtime::rationale::Rationale;
 use crate::value::RuntimeValue;
 use ariadne::Cache;
 use chumsky::{Error, Stream};
-use serde::{Serialize, Serializer};
+use serde::{ser::SerializeStruct, Serialize, Serializer};
 use std::borrow::{Borrow, BorrowMut};
 use std::cell::{Cell, RefCell};
 use std::collections::HashMap;
