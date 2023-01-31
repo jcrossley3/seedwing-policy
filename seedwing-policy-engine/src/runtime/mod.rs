@@ -78,7 +78,7 @@ impl Output {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Serialize, Debug, Clone)]
 pub struct EvaluationResult {
     input: Option<Rc<RuntimeValue>>,
     ty: Arc<Type>,
@@ -752,7 +752,7 @@ pub enum Component {
 }
 
 /// Tracing information such as evaluation time.
-#[derive(Debug, Clone, Copy)]
+#[derive(Serialize, Debug, Clone, Copy)]
 pub struct TraceResult {
     pub duration: Duration,
 }

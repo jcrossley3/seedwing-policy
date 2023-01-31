@@ -19,7 +19,7 @@ impl<'r> Rationalizer<'r> {
         html
     }
 
-    pub fn rationale_inner(html: &mut String, result: &EvaluationResult) {
+    fn rationale_inner(html: &mut String, result: &EvaluationResult) {
         if result.satisfied() {
             html.push_str("<div class='entry satisfied'>");
         } else {
@@ -96,7 +96,7 @@ impl<'r> Rationalizer<'r> {
         html.push_str("</div>");
     }
 
-    pub fn supported_by(html: &mut String, result: &EvaluationResult) {
+    fn supported_by(html: &mut String, result: &EvaluationResult) {
         match result.rationale() {
             Rationale::Anything => {
                 html.push_str("<div>anything is satisfied by anything</div>");

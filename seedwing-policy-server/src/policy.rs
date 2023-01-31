@@ -23,6 +23,41 @@ pub struct PolicyQuery {
 }
 
 #[post("/policy/{path:.*}")]
+pub async fn evaluate_json(
+    world: web::Data<World>,
+    path: web::Path<String>,
+    input: web::Json<serde_json::Value>,
+    params: web::Query<PolicyQuery>,
+) -> HttpResponse {
+    let value = RuntimeValue::from(input.into_inner());
+    let path = path.replace('/', "::");
+
+    let mut trace = EvalTrace::Disabled;
+    if let Some(true) = params.trace {
+        trace = EvalTrace::Enabled;
+    }
+    match world.evaluate(&*path, value, EvalContext::new(trace)).await {
+        Ok(result) => {
+            let rationale = Rationalizer::new(&result).rationale();
+
+            if let Some(true) = params.opa {
+                // OPA result format
+                let satisfied = result.satisfied();
+                HttpResponse::Ok().json(serde_json::json!({ "result": satisfied }))
+            } else if result.satisfied() {
+                HttpResponse::Ok().body(rationale)
+            } else {
+                HttpResponse::NotAcceptable().body(rationale)
+            }
+        }
+        Err(err) => {
+            log::error!("err {:?}", err);
+            HttpResponse::InternalServerError().finish()
+        }
+    }
+}
+
+#[post("/policy/{path:.*}")]
 pub async fn evaluate(
     req: HttpRequest,
     world: web::Data<World>,
