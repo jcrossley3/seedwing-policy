@@ -86,7 +86,7 @@ async fn evaluate<F>(
     path: String,
     value: RuntimeValue,
     params: PolicyQuery,
-    f: F,
+    formatter: F,
 ) -> HttpResponse
 where
     F: Fn(&EvaluationResult) -> String,
@@ -97,7 +97,7 @@ where
     }
     match world.evaluate(&*path, value, EvalContext::new(trace)).await {
         Ok(result) => {
-            let rationale = f(&result);
+            let rationale = formatter(&result);
 
             if let Some(true) = params.opa {
                 // OPA result format
