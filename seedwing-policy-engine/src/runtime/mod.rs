@@ -12,7 +12,7 @@ use crate::runtime::rationale::Rationale;
 use crate::value::RuntimeValue;
 use ariadne::Cache;
 use chumsky::{Error, Stream};
-use serde::{Serialize, Serializer};
+use serde::{ser::SerializeStruct, Serialize, Serializer};
 use std::borrow::{Borrow, BorrowMut};
 use std::cell::{Cell, RefCell};
 use std::collections::HashMap;
@@ -78,7 +78,7 @@ impl Output {
     }
 }
 
-#[derive(Serialize, Debug, Clone)]
+#[derive(Debug, Clone)]
 pub struct EvaluationResult {
     input: Option<Rc<RuntimeValue>>,
     ty: Arc<Type>,
@@ -134,6 +134,22 @@ impl EvaluationResult {
 
     pub fn trace(&self) -> Option<TraceResult> {
         self.trace
+    }
+}
+
+impl Serialize for EvaluationResult {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        let input = match self.input() {
+            Some(input) => input.as_json(),
+            None => serde_json::Value::Null,
+        };
+        let mut state = serializer.serialize_struct("EvaluationResult", 2)?;
+        state.serialize_field("input", &input)?;
+        state.serialize_field("satisfied", &self.satisfied())?;
+        state.end()
     }
 }
 
@@ -752,7 +768,7 @@ pub enum Component {
 }
 
 /// Tracing information such as evaluation time.
-#[derive(Serialize, Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy)]
 pub struct TraceResult {
     pub duration: Duration,
 }

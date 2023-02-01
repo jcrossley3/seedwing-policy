@@ -2,7 +2,7 @@ use crate::runtime::EvaluationResult;
 use serde::Serialize;
 use std::collections::HashMap;
 
-#[derive(Serialize, Debug, Clone)]
+#[derive(Debug, Clone)]
 pub enum Rationale {
     Anything,
     Nothing,
