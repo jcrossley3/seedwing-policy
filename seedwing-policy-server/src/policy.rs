@@ -44,7 +44,7 @@ pub async fn evaluate_json(
     let value = RuntimeValue::from(input.into_inner());
     let path = path.replace('/', "::");
 
-    eval(world.get_ref(), path, value, params.into_inner(), |r| {
+    evaluate(world.get_ref(), path, value, params.into_inner(), |r| {
         // TODO: This is too much to return, may need intermediate structs to clarify the rationale
         serde_json::to_string_pretty(r).unwrap()
     })
@@ -52,7 +52,7 @@ pub async fn evaluate_json(
 }
 
 #[post("/policy/{path:.*}")]
-pub async fn evaluate(
+pub async fn evaluate_html(
     req: HttpRequest,
     world: web::Data<World>,
     path: web::Path<String>,
@@ -71,7 +71,7 @@ pub async fn evaluate(
         let value = RuntimeValue::from(result);
         let path = path.replace('/', "::");
 
-        eval(world.get_ref(), path, value, params.into_inner(), |r| {
+        evaluate(world.get_ref(), path, value, params.into_inner(), |r| {
             Rationalizer::new(r).rationale()
         })
         .await
@@ -81,7 +81,7 @@ pub async fn evaluate(
     }
 }
 
-async fn eval<F>(
+async fn evaluate<F>(
     world: &World,
     path: String,
     value: RuntimeValue,
