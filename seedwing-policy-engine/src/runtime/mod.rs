@@ -137,24 +137,6 @@ impl EvaluationResult {
     }
 }
 
-impl Serialize for EvaluationResult {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        let input = match self.input() {
-            Some(input) => input.as_json(),
-            None => serde_json::Value::Null,
-        };
-        let mut state = serializer.serialize_struct("EvaluationResult", 4)?;
-        state.serialize_field("type", &self.ty().name())?;
-        state.serialize_field("satisfied", &self.satisfied())?;
-        state.serialize_field("input", &input)?;
-        state.serialize_field("rationale", &self.rationale())?;
-        state.end()
-    }
-}
-
 #[derive(Debug, thiserror::Error)]
 pub enum RuntimeError {
     #[error("lock")]

@@ -1,6 +1,6 @@
 use crate::ui::html::Htmlifier;
 use crate::ui::rationale::Rationalizer;
-use crate::ui::LAYOUT_HTML;
+use crate::ui::{json, LAYOUT_HTML};
 use actix_web::guard::{Acceptable, Any, Guard, GuardContext, Header};
 use actix_web::http::header::{self};
 use actix_web::web::{BytesMut, Payload};
@@ -43,10 +43,8 @@ pub async fn evaluate_json(
 ) -> HttpResponse {
     let value = RuntimeValue::from(input.into_inner());
     let path = path.replace('/', "::");
-
     evaluate(world.get_ref(), path, value, params.into_inner(), |r| {
-        // TODO: This is too much to return, may need intermediate structs to clarify the rationale
-        serde_json::to_string_pretty(r).unwrap()
+        serde_json::to_string_pretty(&json::Result::new(r)).unwrap()
     })
     .await
 }
