@@ -62,14 +62,12 @@ fn reason(rationale: &Rationale) -> String {
 }
 
 fn support(rationale: &Rationale) -> Vec<String> {
-    match rationale {
-        Rationale::Object(fields) => {
-            log::info!("wtf!");
-            fields
-                .iter()
-                .flat_map(|(_, r)| support(r.rationale()))
-                .collect()
-        }
+    let mut result = vec![reason(rationale)];
+    let mut v = match rationale {
+        Rationale::Object(fields) => fields
+            .iter()
+            .flat_map(|(_, r)| support(r.rationale()))
+            .collect(),
         Rationale::List(terms) | Rationale::Chain(terms) | Rationale::Function(_, _, terms) => {
             terms.iter().flat_map(|r| support(r.rationale())).collect()
         }
@@ -85,5 +83,7 @@ fn support(rationale: &Rationale) -> Vec<String> {
         Rationale::Refinement(_primary, _refinement) => {
             todo!();
         }
-    }
+    };
+    result.append(&mut v);
+    result
 }
